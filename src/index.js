@@ -5,6 +5,8 @@ const path = require('path')
 const app = express()
 const port = 3000
 
+import {User} from './index2'
+
 // setup the ability to see into response bodies
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
@@ -20,30 +22,28 @@ app.get('/', async (req, res) => {
 
 app.get('/users', async (req, res) => {
     // Write your logic here
+
+    try {
+        const response = await fetch('https://dummyjson.com/users');
+        const userData = await response.json();
+
+        // Send the fetched user data as the response
+        res.json(userData);
+
+        userData.forEach(userData => {
+            const user = new User(userData);
+            user.displayInfo(); 
+        });
+    } catch (error) {
+        console.error('Error fetching user data:', error);
+        res.status(500).send('Failed to fetch user data');
+    }
+    
 })
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))
 
-function processUserData(usersData) {
-    usersData.forEach(userData => {
-        const user = new User(userData);
-        user.displayInfo(); 
-    });
-}
 
 
 
-fetch('https://dummyjson.com/users')
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        return response.json();
-    })
-    .then(data => {
-        console.log(data); // For debugging, log the fetched data
-        processUserData(data); // Call a function to process the fetched data
-    })
-    .catch(error => {
-        console.error('Error fetching user data:', error);
-    });
+
