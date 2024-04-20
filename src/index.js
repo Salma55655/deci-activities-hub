@@ -23,3 +23,27 @@ app.get('/users', async (req, res) => {
 })
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))
+
+function processUserData(usersData) {
+    usersData.forEach(userData => {
+        const user = new User(userData);
+        user.displayInfo(); 
+    });
+}
+
+
+
+fetch('https://dummyjson.com/users')
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log(data); // For debugging, log the fetched data
+        processUserData(data); // Call a function to process the fetched data
+    })
+    .catch(error => {
+        console.error('Error fetching user data:', error);
+    });
